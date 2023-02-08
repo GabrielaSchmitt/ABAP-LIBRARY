@@ -23,7 +23,7 @@ On the Select Options there are more columns.
 Pay attention to the checkbox on the top of the page if you want to include those changings into a transport request. 
 ![image](https://user-images.githubusercontent.com/86369677/217554179-d72c3903-2c28-43e5-bff7-507f0ea389fb.png)
 
-After creating you simply has to click on save and its done. ![image](https://user-images.githubusercontent.com/86369677/217554249-1c050602-f105-48f7-9bf0-38bdd351a4b9.png)
+After creating you simply click on save and its done. ![image](https://user-images.githubusercontent.com/86369677/217554249-1c050602-f105-48f7-9bf0-38bdd351a4b9.png)
 
 
 ## Heres two possibilities to acess tvarv's values on your code:
@@ -31,6 +31,8 @@ After creating you simply has to click on save and its done. ![image](https://us
 If the class is avaiable on your ambient, you can use the abap 7.5 sintax and create the variable of parameter and request the information in one line!
 
     data(v_name) = zcl_tvarv=>get_single_value( 'Z_YOUR_TVARV' ).
+
+Or
     
     zcl_tvarv=>get_single_value( EXPORTING input = 'Z_YOUR_TVARV' RECEIVING r_value = v_cenourinha ).
 
