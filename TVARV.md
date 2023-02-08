@@ -2,14 +2,14 @@
 
 **TVARV** is a standard Logical DB, Selection Screens, Selection Variants Transparent Table in SAP Basis application, which stores Table of variables in selection criteria data.
 
-You can acess all tvarvs of the ambient in the transaction stvarv, or else go to se11 or se16n and search for the table TVARVC. 
+You can access all tvarvs of the ambient in the transaction stvarv, or else go to se11 or se16n and search for the table TVARVC. 
 
 ![image](https://user-images.githubusercontent.com/86369677/217553710-1e4600e1-7b3d-4cd5-ad50-513ebe6242d9.png)
 
-Create your tvarv on the transaction stvarv, it is really simple. Select the option modify and then create ![image](https://user-images.githubusercontent.com/86369677/217553872-7531bcf8-aac3-42e9-9a9e-e69c8ed5fcfd.png)
+Create your tvarv on the transaction stvarv, it is simple. Select the option modify and then create ![image](https://user-images.githubusercontent.com/86369677/217553872-7531bcf8-aac3-42e9-9a9e-e69c8ed5fcfd.png)
 .
 
-Notice that you have two options, tvarv of parameter or tvarv Select Options. The parameter one is used to store a simple value, in case you need multiple values use the Select Options. 
+Notice that you have two options, tvarv of parameter or tvarv Select Options. The parameter one is used to store a simple value. In case you need multiple values, use the Select Options. 
 
 ![image](https://user-images.githubusercontent.com/86369677/217554020-5e0f3c93-ee76-4a29-afdc-d9e2ee212379.png)
 
