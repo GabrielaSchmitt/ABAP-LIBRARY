@@ -1,0 +1,2 @@
+# This is a '.gitattributes' file which reclassifies all '.md' MarkDown files in this repository as ABAP:
+*.md linguist-language=ABAP
