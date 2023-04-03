@@ -1,4 +1,4 @@
-
+# CNPJ
 In Brazil a company's registration number is called CNPJ (“**C**adastro **N**acional de **P**essoas **J**urídicas”).
 
 Here's how to contruct a CNPJ on SAP using ABAP language. 
