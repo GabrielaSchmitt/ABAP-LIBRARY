@@ -30,7 +30,8 @@ The tvarvs used in both codes are directory addresses.
         " Recuperando tvarv e nomenando o arquivo  
         DATA(vl_path) = zcl_tvarv=>get_single_value( 'ZGLOBR_PATH' ).  
         DATA(vl_lines) = lines( t_ztbfi_cs_docir[] ).  
-          
+        DATA(wa_title) = 'Empresa;Ano;Matrícula;N° Documento;N° Item;Parceiro;Moeda;Valor;Data do Documento;N° NFe;Série;CFOP;Grupo mercadorias;Local negócios;Utilização;'.
+        
         IF vl_lines > 500000.  
           
         DATA(index1) = 1.  
@@ -66,6 +67,9 @@ The tvarvs used in both codes are directory addresses.
         IF sy-subrc <> 0.  
         MESSAGE 'Erro ao converter dados para formato csv.' TYPE c_erro DISPLAY LIKE c_erro.  
         ENDIF.  
+        
+         " excel header / titles
+         INSERT wa_title INTO itab_temp1 INDEX 1.
           
         " Export do excel  
         CALL FUNCTION 'GUI_DOWNLOAD'  
@@ -108,6 +112,9 @@ The tvarvs used in both codes are directory addresses.
         IF sy-subrc <> 0.  
         MESSAGE 'Erro ao converter dados para formato csv.' TYPE c_erro DISPLAY LIKE c_erro.  
         ENDIF.  
+        
+         " excel header / titles
+         INSERT wa_title INTO itab_temp1 INDEX 1.
           
         " Export do excel  
         CALL FUNCTION 'GUI_DOWNLOAD'  
@@ -156,6 +163,7 @@ After the code runs you can verify the directory chosen and sort it to find your
     " Recuperando tvarv e nomenando o arquivo  
     DATA(vl_path_bkg) = zcl_tvarv=>get_single_value( 'ZGLOBR_PATH_BKG' ).  
     DATA(vl_lines) = lines( t_ztbfi_cs_docir[] ).  
+    DATA(wa_title) = 'Empresa;Ano;Matrícula;N° Documento;N° Item;Parceiro;Moeda;Valor;Data do Documento;N° NFe;Série;CFOP;Grupo mercadorias;Local negócios;Utilização;'.
       
     " Caso mais de 500mil registros, fazer o download dos dados  
     " em vários exceis de no máximo 500 mil registros.  
@@ -194,7 +202,10 @@ After the code runs you can verify the directory chosen and sort it to find your
     OTHERS = 2.  
     IF sy-subrc <> 0.  
     MESSAGE 'Erro ao converter dados para formato csv.' TYPE c_erro DISPLAY LIKE c_erro.  
-    ENDIF.  
+    ENDIF.
+    
+    " excel header / titles
+    INSERT wa_title INTO itab_temp1 INDEX 1.
       
     OPEN DATASET vl_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT.  
       
