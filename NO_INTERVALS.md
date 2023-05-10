@@ -17,6 +17,7 @@ Here is the declaration.
 SELECTION-SCREEN: BEGIN OF BLOCK bl1 WITH FRAME TITLE TEXT-001.
   SELECT-OPTIONS: s_werks  FOR j_1bnflin-werks     NO INTERVALS NO-EXTENSION,
                   s_nf     FOR j_1bnfdoc-nfenum    NO INTERVALS MATCHCODE OBJECT j1baf.   
+SELECTION-SCREEN: END OF BLOCK bl1.
 
 At Selection-screen output.
 PERFORM f_no_intervals. 
