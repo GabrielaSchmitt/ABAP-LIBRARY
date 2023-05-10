@@ -1,4 +1,4 @@
-# Parameters no intervals
+# NO INTERVALS
 <br>
 Even if you use the stadard option "NO INTERVALS" in a select options you still have an issue, because the user will have the option to use it via the box of multiple selection aside. 
 <br>
