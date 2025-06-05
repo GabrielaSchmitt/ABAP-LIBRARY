@@ -9,3 +9,11 @@
  lw_var = condense( |{ iw_var-field ALPHA = IN }| ).
 
 @data(lw_ekko) = COND #( WHEN LINE_EXISTS( lt_ekko [ EBELN = '100000001' ] THEN lt_ekko [ EBELN = '100000001' ] ).
+
+* Concatenação com iteração 
+    DATA(lv_lotes_text) = REDUCE string( INIT lv_inf TYPE string
+                                         FOR <lf_lin> IN it_j_1bnflin WHERE
+                                       ( charg IS NOT INITIAL )
+                                         NEXT lv_inf = SWITCH string( lv_inf
+                                                                      WHEN space THEN 'Lotes transportados' && | | && <lf_lin>-charg
+                                                                      ELSE lv_inf && | | && <lf_lin>-charg ) ).
