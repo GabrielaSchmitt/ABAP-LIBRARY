@@ -15,3 +15,6 @@ DATA(lv_lotes_text) = REDUCE string( INIT lv_inf TYPE string FOR <lf_lin> IN it_
                                               WHERE ( charg IS NOT INITIAL ) NEXT lv_inf = SWITCH string( lv_inf
                                               WHEN space THEN 'Lotes transportados' && | | && <lf_lin>-charg
                                               ELSE lv_inf && | | && <lf_lin>-charg ) ).
+
+* matnr40 to matnr18
+DATA(lv_asnum_sel) = |{ conv matnr18( |{ zdart001-matnr_svc ALPHA = OUT }|  ) ALPHA = IN }|.
