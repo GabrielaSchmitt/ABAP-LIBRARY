@@ -18,3 +18,9 @@ DATA(lv_lotes_text) = REDUCE string( INIT lv_inf TYPE string FOR <lf_lin> IN it_
 
 * matnr40 to matnr18
 DATA(lv_asnum_sel) = |{ conv matnr18( |{ zdart001-matnr_svc ALPHA = OUT }|  ) ALPHA = IN }|.
+
+* loop 
+data(result) = VALUE #( FOR row IN input ( row-text ) ).
+
+* read table 
+DATA(line) = VALUE #( values[ name = “A” ] OPTIONAL )
