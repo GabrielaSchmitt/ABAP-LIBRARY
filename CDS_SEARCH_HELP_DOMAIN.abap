@@ -1,4 +1,5 @@
 // Every line referring to 'STATUS' has to be changed to your domain scenario, please refer to the code above as an example.
+// Remember, for this, you have created your domain on se11 properly. 
 @AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'CIB: VALUE HELP STATUS'
