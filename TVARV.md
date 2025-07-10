@@ -61,3 +61,46 @@ READ TABLE lr_dir_range INTO DATA(w_dir) INDEX 1.
 
 vpath_tvarv = w_dir-low.
 ```
+
+## Here's a Complete Example Using 7.5 Syntax
+In this case, it was necessary to change the title of a report based on the material number (`matnr`), but only for specific matnr values that could vary between tenants.
+The solution was to create a TVARV entry for each tenant, containing the matnr values that require a specific title.
+> **Note:**  this is a snippet of a larger report.
+
+```abap
+CONSTANTS: c_specific_title  TYPE string VALUE 'SPECIFC TITLE FOR MATNR RETRIEVED FROM TVARV'.
+
+* Select material descriptions
+SELECT matnr spras maktx
+  FROM makt
+  INTO TABLE t_makt
+  FOR ALL ENTRIES IN t_mara
+  WHERE matnr EQ t_mara-matnr
+    AND spras EQ sy-langu.
+  
+IF sy-subrc EQ 0.
+
+  SORT t_makt BY matnr.
+
+* Read TVARV entries and convert them into a range table
+  SELECT * FROM tvarvc
+    INTO TABLE @DATA(lt_tvarvc)
+    WHERE name = 'Z_MAT_SPECIFIC'.
+
+  lr_range_mat = VALUE ty_range_matnr(
+    FOR tvarv IN lt_tvarvc
+      ( sign   = tvarv-sign
+        option = tvarv-opti
+        low    = tvarv-low
+        high   = tvarv-high )
+  ).
+
+* Inline loop: for records where matnr is in the range, override the title
+* rule = for registers where matnr IN lr_range_mat, maktx = c_specific_title
+  t_makt_aux = VALUE #( FOR row IN t_makt ( matnr = row-matnr
+                                            spras = row-spras
+                                            maktx = COND #( WHEN row-matnr IN lr_range_mat THEN c_specific_title
+                                                            ELSE row-maktx ) ) ) .
+  t_makt = t_makt_aux.
+ENDIF.
+```
