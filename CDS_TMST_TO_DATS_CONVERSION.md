@@ -29,7 +29,7 @@ define view ZCDS_VALID_TO_DATE
 }
 ```
 
-## Examle usage in a MAIN cds 
+## Example usage in a MAIN cds 
 
 ```abap
 @AbapCatalog.sqlViewName: 'ZMAIN'
