@@ -39,8 +39,6 @@ As CDS Views seguem uma arquitetura em camadas, que melhora a organização e re
 - **Composite View**: utiliza uma ou mais Basic Views e aplica a lógica de negócio (joins, filtros, cálculos).
 - **Consumption View**: consome as Composite Views e adiciona anotações (`@UI`, `@OData.publish`, etc.) para entrega final em relatórios, APIs ou apps Fiori.
 
-<br></br>
-
 ```plaintext
 Tabelas SAP
    |
@@ -61,3 +59,47 @@ Para fazer busca e filtragem de nome utilize a tag (`type`) para definir o tipo 
 <img width="502" height="307" alt="image" src="https://github.com/user-attachments/assets/e8cf5ad6-3556-45e1-b8f5-b0853e540776" />
 
 <br></br>
+
+## JOIN vs ASSOCIATION:
+
+Ao realizar relacionamentos de dados em uma CDS Composite View, existem duas abordagens principais:
+
+**JOIN**: indicado quando os dados relacionados precisam ser carregados imediatamente na execução da view.
+Exemplo típico: trazer o nome do cliente junto ao pedido na mesma estrutura de resultado.
+
+**ASSOCIATION**: recomendado para manter a modelagem relacional entre entidades sem carregar os dados diretamente, a menos que sejam explicitamente acessados (ideal para apps Fiori e APIs OData).
+
+> 🔍 Abaixo, um exemplo comparativo entre as duas abordagens para a mesma lógica de relacionamento entre VBAK e KNA1:
+
+<table>
+  <tr>
+    <th>JOIN</th>
+    <th>ASSOCIATION</th>
+  </tr>
+  <tr>
+    <td>
+      <pre><code class="language-abap">
+define view ZCDS_SalesOrderJoin 
+  as select from vbak
+    inner join kna1 
+      on vbak.kunnr = kna1.kunnr
+{
+  vbak.vbeln,
+  kna1.name1
+}
+      </code></pre>
+    </td>
+    <td>
+      <pre><code class="language-abap">
+define view ZCDS_SalesOrderAssoc 
+  as select from vbak
+    association [0..1] to kna1 as _Customer 
+      on vbak.kunnr = _Customer.kunnr
+{
+  vbak.vbeln,
+  _Customer.name1
+}
+      </code></pre>
+    </td>
+  </tr>
+</table>
