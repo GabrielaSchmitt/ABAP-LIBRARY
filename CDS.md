@@ -130,3 +130,24 @@ Operações `cast` permitem forçar ou transformar o tipo de um valor ou campo e
 //Cast aninhado -> o uso de preserving type garante que o sistema respeite o tipo do elemento de dados final 
 cast(  cast('E' as abap.lang) as syclang preserving type) as LanguageField
 ```
+<br></br>
+
+## Typed Literals 
+Typed literals são valores constantes com tipo ABAP explícito definidos diretamente na CDS. Evitam erros de conversão, comparações incorretas ou perda de precisão, e são especialmente úteis em filtros, casts e cálculos.
+
+```abap
+// exemplos
+// Caracter
+'ABC'                              as RawChar,
+abap.char 'ABC'                    as TypedChar,
+cast('ABC' as abap.char(10))       as CastChar,
+
+// Decimal e ponto flutuante
+123.45                             as RawFloat,
+abap.fltp '123.45'                 as TypedFloat,
+fltp_to_dec(123.45 as abap.dec(6,2)) as ConvertedDecimal,
+
+// Com preserving type (mantém metadados do tipo alvo)
+cast( abap.char 'XYZ' as Char10 preserving type ) as PreciseTypedChar
+```
+<br></br>
