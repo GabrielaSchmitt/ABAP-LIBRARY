@@ -103,3 +103,30 @@ define view ZCDS_SalesOrderAssoc
     </td>
   </tr>
 </table>
+
+<br></br>
+
+## CAST 
+
+Operações `cast` permitem forçar ou transformar o tipo de um valor ou campo em tempo de definição da CDS View. São essenciais para garantir tipos corretos em cálculos e joins, aplicar precisão em campos decimais e preparar dados para consumo via OData ou Fiori.
+
+### Principais tipos de cast 
+
+| Tipo ABAP CDS      | Exemplo                                                  | Descrição                          |
+|--------------------|----------------------------------------------------------|------------------------------------|
+| `abap.char(N)`     | `cast('ABC' as abap.char(10))`                            | Texto de comprimento fixo         |
+| `abap.numc(N)`     | `cast('123' as abap.numc(5))`                             | Numérico em formato texto         |
+| `abap.dats`        | `cast('20240714' as abap.dats)`                           | Data (formato AAAAMMDD)           |
+| `abap.tims`        | `cast('123000' as abap.tims)`                             | Hora (formato HHMMSS)             |
+| `abap.int4`        | `cast(10 as abap.int4)`                                   | Número inteiro (4 bytes)          |
+| `abap.fltp`        | `cast(1.25 as abap.fltp)`                                 | Ponto flutuante                    |
+| `abap.dec(P,S)`    | `fltp_to_dec(1.25 as abap.dec(5,2))`                      | Decimal com precisão (P,S)        |
+| `abap.lang`        | `cast('E' as abap.lang)`                                  | Código de idioma                   |
+| `abap.unit`        | `cast('KG' as abap.unit)`                                 | Unidade de medida (ex: KG, M)     |
+| `abap.curr`        | `cast('BRL' as abap.curr)`                                | Moeda (ex: BRL, USD)              |
+
+
+```abap
+//Cast aninhado -> o uso de preserving type garante que o sistema respeite o tipo do elemento de dados final 
+cast(  cast('E' as abap.lang) as syclang preserving type) as LanguageField
+```
