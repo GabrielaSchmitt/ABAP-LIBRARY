@@ -299,3 +299,74 @@ union select from Z_ViewAsDataSourceB
 }
 ```
 <br></br>
+
+## INTERSECT e EXCEPT
+
+As operações `INTERSECT` e `EXCEPT` são utilizadas para determinar registros comuns ou exclusivos entre diferentes fontes de dados em CDS Views. Essas operações são fundamentais para análises comparativas e identificação de diferenças entre conjuntos de dados.
+
+O `INTERSECT` identifica registros que estão presentes em **ambas** as fontes de dados simultaneamente, enquanto o `EXCEPT` exclui registros de uma fonte que estão presentes em outra, retornando apenas os registros exclusivos da primeira fonte.
+
+<table>
+  <tr>
+    <th>INTERSECT</th>
+    <th>EXCEPT</th>
+  </tr>
+  <tr>
+    <td>
+      <pre><code class="language-abap">
+@Metadata.ignorePropagatedAnnotations: true
+define view entity Z_ViewWithIntersect
+  as select from Z_UnionViewAsDataSourceA
+{
+  key Field1
+}
+intersect select from Z_UnionViewAsDataSourceB
+{
+  key Field1
+}
+      </code></pre>
+    </td>
+    <td>
+      <pre><code class="language-abap">
+@Metadata.ignorePropagatedAnnotations: true
+define view entity Z_ViewWithExcept
+  as select from Z_UnionViewAsDataSourceA
+{
+  key Field1
+}
+except select from Z_UnionViewAsDataSourceB
+{
+  key Field1
+}
+      </code></pre>
+    </td>
+  </tr>
+</table>
+
+| Operação | Descrição | Resultado |
+|----------|-----------|-----------|
+| **UNION** | Combina registros de ambas as fontes | Todos os registros únicos |
+| **UNION ALL** | Combina registros mantendo duplicatas | Todos os registros, incluindo duplicatas |
+| **INTERSECT** | Registros presentes em ambas as fontes | Apenas registros comuns |
+| **EXCEPT** | Registros da primeira fonte que não estão na segunda | Registros exclusivos da primeira fonte |
+
+### Exemplo comparativo
+
+Considerando duas fontes de dados:
+- **Z_UnionViewAsDataSourceA**: contém registros [A, B]
+- **Z_UnionViewAsDataSourceB**: contém registros [A, C]
+
+| Operação | Resultado |
+|----------|-----------|
+| **UNION** | [A, B, C] |
+| **INTERSECT** | [A] |
+| **EXCEPT** (A - B) | [B] |
+| **EXCEPT** (B - A) | [C] |
+
+**Regras importantes**:
+- Todas as queries devem ter a mesma estrutura de campos
+- Os tipos de dados devem ser compatíveis
+- A ordem dos campos deve ser idêntica
+- Use `@Metadata.ignorePropagatedAnnotations: true` para controlar propagação de anotações
+<br></br>
+
