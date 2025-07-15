@@ -463,3 +463,32 @@ define view entity Z_ViewWithDateProjection
 }
 ```
 <br></br>
+
+## Parameters
+Os parameters em CDS Views permitem tornar as consultas dinâmicas e reutilizáveis, recebendo valores externos que podem ser utilizados em filtros, cálculos e condições.
+
+```abap
+define view entity Z_ViewWithParameters
+  with parameters
+    P_KeyDate  : abap.dats,
+    P_Language : sylangu
+  as select from Z_ViewDataSource
+  
+  association [0..*] to Z_ViewTarget as _Target
+    on $projection.KeyField = _Target.KeyField
+    and $projection.Language = _Target.Language
+{
+  key KeyField,
+  ValidityEndDate,
+  ValidityStartDate,
+  $parameters.P_Language as Language,
+  _Target.ValidityDate($parameters.P_KeyDate) as TargetKeyField
+}
+where ValidityEndDate >= $parameters.P_KeyDate
+  and ValidityStartDate <= $parameters.P_KeyDate
+  and Language = $parameters.P_Language
+```
+
+> **Vantagens**: Flexibilidade na execução, reutilização de código, filtragem dinâmica e integração com aplicações Fiori que podem fornecer valores de parâmetros em tempo de execução.
+
+<br></br>
