@@ -401,3 +401,65 @@ Considerando duas fontes de dados:
 - Use `@Metadata.ignorePropagatedAnnotations: true` para controlar propagação de anotações
 <br></br>
 
+## SQL Aggregation Functions
+As funções de agregação permitem realizar cálculos de agregados predefinidos de forma eficiente no nível do banco de dados. Essas funções SQL podem ser usadas dentro da implementação das suas CDS Views para consolidar e sumarizar dados.
+
+| Função | Descrição | Exemplo Resultado | Observações |
+|--------|-----------|-------------------|-------------|
+| `MIN()` | Valor mínimo | FieldWithMin = 1 | Retorna o menor valor do campo |
+| `MAX()` | Valor máximo | FieldWithMax = 3 | Retorna o maior valor do campo |
+| `AVG()` | Média aritmética | FieldWithAvg = 2 | Requer cast para tipo decimal |
+| `SUM()` | Soma total | FieldWithSum = 6 | Soma todos os valores do campo |
+| `COUNT(DISTINCT)` | Contagem distinta | FieldWithCountDistinct = 1 | Conta valores únicos por grupo |
+| `COUNT(*)` | Contagem total | FieldWithCountAll = 3 | Conta todos os registros agregados |
+
+
+```abap
+define view entity Z_ViewWithAggregations
+  as select from Z_ViewAsDataSourceF
+{
+  key Field1,
+  min(Field3)                           as FieldWithMin,
+  max(Field3)                           as FieldWithMax,
+  avg( Field3 as abap.dec(float34) )    as FieldWithAvg,
+  cast( sum(Field3) as abap.int4 )      as FieldWithSum,
+  count( distinct Field1 )              as FieldWithCountDistinct,
+  count(*)                              as FieldWithCountAll
+}
+group by Field1
+```
+<br></br>
+
+## Projection Fields 
+Projection fields são definidos na cláusula select de uma view CDS. Eles permitem reutilizar cálculos intermediários como se fossem colunas "virtuais", tornando o código modular (evita repetição de lógica), legível e eficiente (evita recalcular expressões repetidamente). 
+
+> Abaixo, criamos uma view que projeta a data de criação do pedido (erdat) e deriva componentes e formatos reutilizando projeções anteriores.
+
+```abap
+define view entity Z_ViewWithDateProjection
+  as select from vbak
+{
+  vbeln,
+  erdat as OrderDate,
+  
+  // Campos de projeção para componentes da data
+  substring($projection.OrderDate, 1, 4) as Year,
+  substring($projection.OrderDate, 5, 2) as Month,  
+  substring($projection.OrderDate, 7, 2) as Day,
+  
+  // Formatação dd/mm/aaaa usando projection fields
+  concat( concat( concat( $projection.Day, '/' ), 
+                  concat( $projection.Month, '/' ) ), 
+          $projection.Year ) as FormattedDate,
+  
+  // Formatação mm-aaaa
+  concat( concat( $projection.Month, '-' ), $projection.Year ) as MonthYear,
+  
+  // Validação usando projection fields
+  case 
+    when $projection.Month between '01' and '12' then 'Valid'
+    else 'Invalid'
+  end as DateValidation
+}
+```
+<br></br>
