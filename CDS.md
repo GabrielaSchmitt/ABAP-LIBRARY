@@ -105,6 +105,37 @@ define view ZCDS_SalesOrderAssoc
 </table>
 
 <br></br>
+
+### JOINs
+
+
+| JOIN             | Notação de Conjunto |  A = {1,2}, B = {2,3}            | Descrição                                                                                  |
+| ---------------- | ------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| INNER JOIN       | A ∩ B               | {2}                              | Retorna apenas os registros que existem nas duas fontes.	                                  |
+| LEFT OUTER JOIN  | A ∪ (A ∩ B)         | {1, 2}                           | Traz todos os registros da fonte primária (esquerda) e os correspondentes da secundária.   |
+| RIGHT OUTER JOIN | B ∪ (A ∩ B)         | {2, 3}                           | Traz todos os registros da fonte secundária (direita) e os correspondentes da primária.    | 
+| CROSS JOIN       | A × B               | {(1,2), (1,3), (2,2), (2,3)}     | Combina todos os registros da FonteA com todos da FonteB (produto cartesiano).             |
+
+### Cardinalidade em Joins
+A cardinalidade define a relação entre os registros das fontes de dados:
+
+**one-to-one:** cada registro da fonte primária corresponde a no máximo um registro da fonte secundária.
+
+**one-to-many:** cada registro da fonte primária pode corresponder a múltiplos registros da fonte secundária (declarado com to many).
+
+```abap
+define view entity Z_ViewWithLeftOuterJoins
+  as select from Z_ViewAsDataSourceD
+    left outer to many join Z_ViewAsDataSourceE
+      on Z_ViewAsDataSourceD.Field1 = Z_ViewAsDataSourceE.Field1
+{
+  key Z_ViewAsDataSourceD.Field1,
+  key Z_ViewAsDataSourceD.Field2,
+  key Z_ViewAsDataSourceE.Field2
+}
+```
+
+<br></br>
 ## Session Variables
 As session variables permitem acessar dados da sessão atual (usuário, idioma, client, data etc.) diretamente na CDS View, adaptando o resultado conforme o contexto da execução, sem precisar de parâmetros manuais.
 
