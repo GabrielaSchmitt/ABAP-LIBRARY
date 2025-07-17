@@ -492,3 +492,33 @@ where ValidityEndDate >= $parameters.P_KeyDate
 > **Vantagens**: Flexibilidade na execução, reutilização de código, filtragem dinâmica e integração com aplicações Fiori que podem fornecer valores de parâmetros em tempo de execução.
 
 <br></br>
+
+## Reference Fields
+Reference fields são campos de `amount` e `quantity` que definem referências a campos de moeda ou unidade, respectivamente. São obrigatórios para campos com tipos ABAP `curr` ou `quan`, garantindo consistência semântica e formatação correta em interfaces.
+
+**Agrega na CDS**: consistência semântica, formatação automática no Fiori, validação de dados e integração OData otimizada.
+
+| Tipo | Anotação | 
+|----------------|--------------------------------------|
+| Código moeda   | `@Semantics.amount.currencyCode`     |
+| Unidade medida | `@Semantics.quantity.unitOfMeasure`  | 
+
+```abap
+define view entity Z_SalesOrderAmounts
+  as select from vbak
+    inner join vbap on vbak.vbeln = vbap.vbeln
+{
+  vbak.vbeln as SalesOrder,
+  
+  @Semantics.amount.currencyCode: 'Currency'
+  vbap.netwr as NetValue,
+  vbak.waerk as Currency,
+  
+  @Semantics.quantity.unitOfMeasure: 'Unit'
+  vbap.kwmeng as OrderQuantity,
+  vbap.vrkme  as Unit
+}
+```
+> **Importante**: Reference fields são essenciais para aplicações Fiori, onde a formatação correta de valores monetários e quantidades melhora significativamente a experiência do usuário.
+
+<br></br>
