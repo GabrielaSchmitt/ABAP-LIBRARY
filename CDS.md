@@ -583,4 +583,96 @@ define view entity Z_ViewWithConversions
 ```
 <br></br>
 
+# Contract Types 
 
+Contract Types definem como um modelo CDS pode ser usado e implementado, estabelecendo regras específicas para cada cenário.
+
+##  3 Tipos Principais
+
+<table>
+  <tr>
+    <th>TRANSACTIONAL INTERFACE</th>
+    <th>TRANSACTIONAL QUERY</th>
+    <th>ANALYTICAL QUERY</th>
+  </tr>
+  <tr>
+    <td><strong>Para:</strong> APIs públicas estáveis e extensibilidade RAP</td>
+    <td><strong>Para:</strong> Aplicações Fiori e objetos de negócio RAP</td>
+    <td><strong>Para:</strong> Relatórios e dashboards analíticos</td>
+  </tr>
+  <tr>
+    <td>
+      <strong>Restrições:</strong><br>
+      ❌ Sem associações<br>
+      ❌ Sem campos virtuais<br>
+      ❌ Sem elementos adicionais<br>
+      ✅ Apenas projeção simples
+    </td>
+    <td>
+      <strong>Permite:</strong><br>
+      ✅ Associações redefinidas<br>
+      ✅ Campos virtuais<br>
+      ✅ Composições<br>
+      ✅ Flexibilidade total
+    </td>
+    <td>
+      <strong>Características:</strong><br>
+      ✅ Agregações complexas<br>
+      ✅ Métricas avançadas<br>
+      ✅ Otimizado para grandes volumes<br>
+      ⚠️ Requer cube view como base
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <pre><code class="language-abap">
+define root view entity DEMO_CDS_TRANS_INTERFACE_ROOT
+  provider contract transactional_interface
+  as projection on DEMO_CDS_PURCH_DOC_M
+{
+  key PurchaseDocument,
+      Description,
+      Status,
+      Priority
+}
+      </code></pre>
+    </td>
+    <td>
+      <pre><code class="language-abap">
+define root view entity DEMO_CDS_PV_PARENT
+  provider contract transactional_query
+  as projection on DEMO_CDS_VIEW_PARENT
+  redefine association _child
+    redirected to composition child DEMO_CDS_PV_CHILD
+{
+  key Id,
+      Int1,
+      _child: redirected to DEMO_CDS_PV_CHILD
+}
+      </code></pre>
+    </td>
+    <td>
+      <pre><code class="language-abap">
+define transient view entity DEMO_CDS_ANALYTIC_CASE
+  provider contract analytical_query
+  as projection on DEMO_CDS_CUBE_VIEW
+{
+  so_key,
+  currency_sum,
+  @Semantics.amount.currencyCode: 'currency_sum'
+  case when lifecycle_status between 'A' and 'B'
+    then amount_sum else null end as QuantityAB,
+  @Aggregation.default: #FORMULA
+  case when created_on = $session.system_date
+    then abap.int8'200'
+    else abap.int8'700'
+  end as formula_demo
+}
+      </code></pre>
+    </td>
+  </tr>
+</table>
+
+> **Violou o contrato = Não ativa!** : O sistema valida as regras durante a verificação de sintaxe. Se o modelo não seguir as restrições do contract type, a ativação falhará.
+
+<br></br>
