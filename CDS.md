@@ -522,3 +522,65 @@ define view entity Z_SalesOrderAmounts
 > **Importante**: Reference fields são essenciais para aplicações Fiori, onde a formatação correta de valores monetários e quantidades melhora significativamente a experiência do usuário.
 
 <br></br>
+
+## Conversion Functions
+
+As conversion functions permitem converter valores entre diferentes unidades de medida ou moedas diretamente no banco de dados, utilizando tabelas padrão do SAP. São essenciais em relatórios que exibem dados em múltiplas unidades (ex: KG → G) ou moedas (ex: BRL → USD), com suporte nativo ao Fiori.
+
+| Conversão         | Função                | Parâmetros principais                                  | Exemplo   |
+| ----------------- | --------------------- | ------------------------------------------------------ | --------- |
+| Unidade de Medida | `unit_conversion`     | `quantity`, `source_unit`, `target_unit`               | KG → G    |
+| Moeda             | `currency_conversion` | `amount`, `source_currency`, `target_currency`, `date` | BRL → USD |
+
+#### Ambas permitem controle de erro com:
+
+`FAIL_ON_ERROR`: lança erro.
+
+`SET_TO_NULL`: retorna valor nulo em caso de falha.
+
+```abap
+define view entity Z_ViewWithConversions
+  with parameters
+    P_DisplayUnit     : msehi,
+    P_DisplayCurrency : waers_curc,
+    P_ExchangeRateDate : sydatum
+  as select from ZI_SalesOrderItem
+{
+  key SalesOrder,
+  
+  // Unit Conversion - Conversão de unidades de medida
+  @Semantics.quantity.unitOfMeasure: 'OrderQuantityUnit'
+  OrderQuantity,
+  OrderQuantityUnit,
+  
+  @Semantics.quantity.unitOfMeasure: 'OrderQuantityDisplayUnit'
+  unit_conversion( 
+    quantity      => OrderQuantity,
+    source_unit   => OrderQuantityUnit,
+    target_unit   => $parameters.P_DisplayUnit,
+    error_handling => 'FAIL_ON_ERROR' 
+  ) as OrderQuantityInDisplayUnit,
+  
+  $parameters.P_DisplayUnit as OrderQuantityDisplayUnit,
+  
+  // Currency Conversion - Conversão de moedas
+  @Semantics.amount.currencyCode: 'TransactionCurrency'
+  NetAmount,
+  TransactionCurrency,
+  
+  @Semantics.amount.currencyCode: 'DisplayCurrency'
+  currency_conversion(
+    amount             => NetAmount,
+    source_currency    => TransactionCurrency,
+    target_currency    => $parameters.P_DisplayCurrency,
+    exchange_rate_date => $parameters.P_ExchangeRateDate,
+    exchange_rate_type => 'M',
+    error_handling     => 'SET_TO_NULL'
+  ) as NetAmountInDisplayCurrency,
+  
+  $parameters.P_DisplayCurrency as DisplayCurrency
+}
+```
+<br></br>
+
+
