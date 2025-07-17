@@ -583,11 +583,11 @@ define view entity Z_ViewWithConversions
 ```
 <br></br>
 
-# Contract Types 
+## Contract Types 
 
 Contract Types definem como um modelo CDS pode ser usado e implementado, estabelecendo regras específicas para cada cenário.
 
-##  3 Tipos Principais
+###  3 Tipos Principais
 
 <table>
   <tr>
@@ -674,5 +674,43 @@ define transient view entity DEMO_CDS_ANALYTIC_CASE
 </table>
 
 > **Violou o contrato = Não ativa!** : O sistema valida as regras durante a verificação de sintaxe. Se o modelo não seguir as restrições do contract type, a ativação falhará.
+
+<br></br>
+
+## Entity Buffer 
+
+O Entity Buffer armazena os resultados de visualizações CDS em memória do servidor ABAP, evitando acessos repetidos ao HANA. É útil para dados de leitura frequente e baixa atualização.
+
+#### Quando Usar
+✅ Dados de referência: Materiais, clientes, fornecedores, configurações.              <br>
+✅ Consultas frequentes: Leituras recorrentes com alta razão leitura/escrita.          <br>
+✅ Cenários de performance crítica: Onde um pequeno atraso na atualização é aceitável. <br>
+
+#### Quando Evitar
+❌ Dados transacionais ou em tempo real: Como pedidos ou faturas.  <br>
+❌ Consultas esporádicas: Acesso pontual ou raro.                  <br>
+❌ Ambientes com pouca memória: O buffer consome RAM do servidor.  <br>
+❌ Dados que precisam refletir alterações imediatas.               <br>
+
+```abap 
+@AbapCatalog.entityBuffer.definitionAllowed: true
+define view entity Z_MaterialsBuffered as select from mara
+{
+  key matnr as MaterialNumber,
+      mtart as MaterialType,
+      matkl as MaterialGroup,
+      meins as BaseUnit
+}
+where mara.lvorm = ''
+```
+
+### Restrições de uso 
+
+| Restrição            | Descrição                                  | Exemplo                                   |
+| -------------------- | ------------------------------------------ | ----------------------------------------- |
+| Parâmetros           | CDS com `parameters` não podem usar buffer | `with parameters p_client : mandt`        |
+| Variáveis de sessão  | Invalidam o cache                          | `$session.system_date`, `$session.user`   |
+| Funções dinâmicas    | Retornam valores variados                  | `utcl_current( )`, `tstmp_current_utc( )` |
+| Dependência indireta | Fonte sem buffer invalida cadeia           | CDS baseada em outra CDS não bufferizada  |
 
 <br></br>
