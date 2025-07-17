@@ -381,9 +381,8 @@ except select from Z_UnionViewAsDataSourceB
 | **INTERSECT** | Registros presentes em ambas as fontes | Apenas registros comuns |
 | **EXCEPT** | Registros da primeira fonte que não estão na segunda | Registros exclusivos da primeira fonte |
 
-### Exemplo comparativo
 
-Considerando duas fontes de dados:
+Observe o exemplo abaixo considerando duas fontes de dados:
 - **Z_UnionViewAsDataSourceA**: contém registros [A, B]
 - **Z_UnionViewAsDataSourceB**: contém registros [A, C]
 
