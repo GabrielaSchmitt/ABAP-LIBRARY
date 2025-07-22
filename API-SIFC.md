@@ -59,7 +59,7 @@ O OData é amplamente utilizado em sistemas que requerem uma maneira consistente
 - coloque como interface `IF_HTTP_EXTENSION`
 <img width="786" height="223" alt="image" src="https://github.com/user-attachments/assets/802c7868-df66-4e00-b53f-9c1394984320" />
 
-- acesse o método handle_request e implemente seu código. Abaixo um exemplo simples
+- acesse o método handle_request e faça sua redefinição como no exemplo abaixo. 
 
 ```abap
 METHOD if_http_extension~handle_request.
