@@ -2,6 +2,7 @@
 <lf_contract>-st_contrato = COND #( WHEN lt_tab-var = 01 THEN 'FECHADO' ELSE 'ABERTO' ).
 
 * concatenação 
+DATA(message) = |Received HTTP code { status_code } with message { text }|.
 <lf_contract>-dt_emissao = |{ lw_ekko-aedat(4) }-{ lw_ekko-aedat+4(2) }-{ lw_ekko-aedat+6(2) }|.
 
 * remover/adicionar zeros a esquerda/direita - antes CONVERSION_EXIT_ALPHA_INPUT
@@ -30,3 +31,6 @@ data(result) = VALUE #( FOR row IN input ( row-text ) ).
 
 * read table 
 DATA(line) = VALUE #( values[ name = “A” ] OPTIONAL )
+
+* para verificar se o registro existe, ao invés de READ TABLE ou LOOP AT
+IF line_exists( my_table[ key = 'A' ] ).
