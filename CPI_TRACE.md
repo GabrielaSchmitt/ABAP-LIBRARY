@@ -1,10 +1,10 @@
-# CPI TRACE 🛠️
+# CPI TRACE 
 
 **Trace mode** is an essential debugging tool in SAP Cloud Platform Integration (CPI). It allows you to inspect the message payload and its transformations at each step (or "shape") within your integration flow (iFlow). This is invaluable for troubleshooting, verifying your logic, and understanding how data is processed.
 
 ---
 
-## Recommended Tool: CPI Helper Extension 🚀
+## CPI Helper Extension 
 
 While you can manage trace settings manually, the **CPI Helper Chrome Extension** significantly streamlines the process. It's a highly recommended tool for any CPI developer that adds a helpful toolbar directly into the iFlow editor.
 
@@ -13,7 +13,7 @@ While you can manage trace settings manually, the **CPI Helper Chrome Extension*
 
 ---
 
-## How to Activate Trace
+## Using Trace
 
 Once the extension is installed, reload the page. When you access your integrations, a new set of buttons will appear.
 
