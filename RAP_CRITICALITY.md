@@ -69,6 +69,7 @@ annotate view ZC_TRAVEL_U01158
 <br></br>
 
 **Domínio**
+
 <img width="936" height="468" alt="image" src="https://github.com/user-attachments/assets/94bb5cde-4b8d-48c0-a1fc-554a411a56a4" />
 
 **CDS Value Help**
