@@ -6,7 +6,7 @@ Para implementa-lo é necessário um entrelaçamento entre a camada de dados (CD
 
 **Lógica de Criticidade na CDS View**: Um campo numérico é criado para mapear os diferentes status do negócio para os valores de criticidade reconhecidos pelo Fiori.
 
-**Associar a Criticidade na Camada de Metadados**: Uma anotação de UI é usada para vincular o campo de status visual (o que o usuário vê) ao campo de lógica de criticidade.
+**Associar a Criticidade na Camada de Metadados**: Uma anotação de UI é usada para vincular o campo de status visual (o que o usuário vê) ao campo de lógica de criticidade. 
 
 ---
 <br></br>
