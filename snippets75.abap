@@ -16,6 +16,9 @@ data(lr_item) = 'item2'.
 data(lr_lote) = 'lo t 3 e '.
 data(lr_novo) = |{ lr_item } Lote: { replace( val = |{ lr_lote ALPHA = OUT }|  sub = ` ` with = '' occ = 0 ) }|.
 
+* condense
+data(lr_novo) = |{ lr_item } Lote: { condense( |{ lr_lote ALPHA = OUT }|  ) }|.
+
 * Concatenação com iteração 
 DATA(lv_lotes_text) = REDUCE string( INIT lv_inf TYPE string FOR <lf_lin> IN it_j_1bnflin 
                                               WHERE ( charg IS NOT INITIAL ) NEXT lv_inf = SWITCH string( lv_inf
