@@ -11,6 +11,11 @@ DATA(message) = |Received HTTP code { status_code } with message { text }|.
 
 @data(lw_ekko) = COND #( WHEN LINE_EXISTS( lt_ekko [ EBELN = '100000001' ] THEN lt_ekko [ EBELN = '100000001' ] ).
 
+* replace - esta removendo espaços da string lr_lote e depois concatenando 
+data(lr_item) = 'item2'.
+data(lr_lote) = 'lo t 3 e '.
+data(lr_novo) = |{ lr_item } Lote: { replace( val = |{ lr_lote ALPHA = OUT }|  sub = ` ` with = '' occ = 0 ) }|.
+
 * Concatenação com iteração 
 DATA(lv_lotes_text) = REDUCE string( INIT lv_inf TYPE string FOR <lf_lin> IN it_j_1bnflin 
                                               WHERE ( charg IS NOT INITIAL ) NEXT lv_inf = SWITCH string( lv_inf
