@@ -713,3 +713,52 @@ where mara.lvorm = ''
 | Dependência indireta | Fonte sem buffer invalida cadeia           | CDS baseada em outra CDS não bufferizada  |
 
 <br></br>
+
+##  Virtual Elements
+Campos da CDS que são populados através da chamada de uma **classe abap**, e não diretamente no banco de dados. Essa lógica só é executada quando a CDS é consumida por serviços OData ou aplicações Fiori, permitindo estender o modelo com cálculos complexos que o SQL não suporta.
+
+>⚠️ Seus valores não aparecem em consultas diretas (SE16N, Data Preview do Eclipse), apenas no consumo via serviço.
+
+A implementação exige uma anotação na CDS e uma classe ABAP com uma interface específica.
+<br></br>
+**CDS**
+
+Use as anotações `@ObjectModel.virtualElement` para marcar o campo e `@ObjectModel.virtualElementCalculatedBy` para indicar a classe que fará o cálculo.
+
+```abap
+@Odata.publish: true
+define view entity Z_ViewWithVirtualElements
+  as select from ZI_SalesOrderItem as SO
+{
+  key so.SalesOrder,
+  so.SaleDate,
+
+  @objectModel.virtualElement: true
+  @objectModel.virtualElementCalculatedBy: 'ZCL_VE_SALES' --> nome da classe a ser chamada para calcular todos os campos e preenchelos
+  cast('' AS abap.char(10)) AS categoria,                 -- neste exemplo estamos usando apenas o campo categoria
+
+  so.price
+}
+```
+<br></br>
+Crie a classe na se24 com o mesmo nome identificado na cds. 
+
+<img width="595" height="357" alt="image" src="https://github.com/user-attachments/assets/e55def4b-4f3b-4099-8b69-8e1da8f6c4c5" />
+
+<br></br>
+
+Na aba interface coloque este valor `IF_SADL_EXIT_CALC_ELEMENT_READ`
+
+<img width="803" height="223" alt="image" src="https://github.com/user-attachments/assets/8b9300a1-e06a-41e7-bbfe-5d7ce66be4f3" />
+
+<br></br>
+
+Agora vamos à implementação do calculo dos campos.
+
+<img width="602" height="385" alt="image" src="https://github.com/user-attachments/assets/52ba53aa-91b4-4782-9c18-d5ebfa40e5c0" />
+
+Para validar faça a chamada do Odata e verifique como esta sendo preenchido o campo. Transação /IWFND/MAINT_SERVICES
+
+Se necessário, coloque um ponto de parada externo para debugar. 
+
+<br></br>
