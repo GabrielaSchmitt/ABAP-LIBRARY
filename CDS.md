@@ -4,7 +4,7 @@ Este documento reúne conceitos, explicações e exemplos práticos sobre o uso 
 <br></br>
 As **CDS Views (Core Data Services)** são uma forma avançada de modelar dados diretamente no banco SAP HANA. Elas permitem que parte da lógica de negócio seja empurrada para o banco de dados (*Code Push Down*), oferecendo:
 
-- **Performance otimizada**
+- **Performance otimizada** 
 - **Reutilização de lógica de negócio**
 - **Exposição nativa de dados via OData**
 - **Integração com a camada de apresentação (Fiori)**
