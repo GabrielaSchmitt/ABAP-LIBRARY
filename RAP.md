@@ -4,10 +4,15 @@ Este documento reúne conceitos, explicações e exemplos práticos sobre o uso 
 
 O **ABAP RAP** representa a evolução do desenvolvimento ABAP, fornecendo um modelo de programação que padroniza a criação de serviços OData de ponta a ponta. Com o S/4HANA, modificações tecnológicas fundamentais foram introduzidas no ABAP, impactando todas as camadas do desenvolvimento, desde o banco de dados SAP HANA até a experiência do usuário com SAP Fiori e SAPUI5.
 
-- **Desenvolvimento Eficiente**: Reduz a complexidade ao fornecer frameworks que automatizam tarefas técnicas.
-- **Consistência e Padronização**: Garante que as aplicações sigam uma arquitetura consistente e um fluxo de desenvolvimento padronizado.
-- **Otimizado para SAP HANA**: Tira proveito do "Code Pushdown", levando o código ao nível do banco de dados, sem a necessidade de mover os dados para a memória principal do servidor de aplicação. A tecnologia in-memory do HANA armazena os dados na memória principal do banco e utiliza um armazenamento em colunas com indexação automática para acelerar o acesso.
-- **Baseado em REST**: As APIs geradas seguem os princípios REST, garantindo interoperabilidade e escalabilidade.
+> **Desenvolvimento Eficiente**: Reduz a complexidade ao fornecer frameworks que automatizam tarefas técnicas.
+
+> **Consistência e Padronização**: Garante que as aplicações sigam uma arquitetura consistente e um fluxo de desenvolvimento padronizado.
+
+> **Otimizado para SAP HANA:** O RAP aproveita ao máximo a velocidade do banco de dados SAP HANA por meio do `"Code Pushdown"` (isto é, em vez de trazer todos os dados brutos para a aplicação, a lógica e os cálculos são 'empurrados' para serem executados diretamente lá no banco de dados).
+Isso acaba com a necessidade de mover grandes volumes de dados para a memória do servidor de aplicação (uma prática antiga que era lenta e consumia muitos recursos de rede e processamento).
+Essa performance toda é possível porque a tecnologia `in-memory` do HANA (que guarda os dados na memória RAM, milhares de vezes mais rápida que discos tradicionais) armazena os dados na memória principal do banco e utiliza um `armazenamento em colunas` (que organiza os dados de forma vertical, acelerando cálculos) com `indexação automática` para acelerar o acesso (pense nisso como um índice de livro super inteligente e sempre atualizado para cada coluna de dados, permitindo ao banco de dados encontrar qualquer informação instantaneamente, sem precisar "ler" a coluna inteira).
+
+> **Baseado em REST**: As APIs geradas seguem os princípios REST, garantindo interoperabilidade e escalabilidade.
 
 O desenvolvimento com RAP é realizado no **ABAP Development Tools (ADT)** no Eclipse.
 
@@ -138,12 +143,12 @@ O modelo transacional do RAP é fundamental para entender como as operações de
 1.  **Fase de Interação (Interaction Phase)**: Quando um objeto de negócio é modificado (criado, atualizado ou deletado), as alterações não são escritas diretamente no banco de dados. Em vez disso, as instâncias das respectivas CDS são armazenadas em um buffer transacional na memória.
 2.  **Fase de Salvamento (Save Sequence)**: Após a interação, um gatilho de "save" é acionado pelo consumidor (por exemplo, ao clicar no botão "Salvar" em um app Fiori). Neste momento, o estado do buffer é persistido e finalmente escrito na base de dados.
 
-### Tratamento de Rascunho (Draft Handling)
-
+### Tratamento de Rascunho (Draft Handling) 
 Uma das funcionalidades mais poderosas do RAP é o tratamento de rascunhos, que está totalmente implementado pelo framework.
 - Ele permite que o estado do buffer transacional seja armazenado de forma temporária, mas persistente, no banco de dados.
 - Isso possibilita que um usuário inicie uma transação, pare e continue seu trabalho posteriormente, mesmo em um dispositivo diferente, sem perder os dados inseridos.
 - Essa capacidade de distribuir a fase de interação entre várias sessões ou solicitações é feita sem violar os princípios de comunicação sem estado do REST.
+> ⚠️ é uma capacidade standard portanto só funciona quando é do Implementation Type `MANAGED`. 
 
 <br>
 
@@ -156,98 +161,186 @@ O modelo RAP introduz o conceito de **Implementation Type** para especificar que
 | **Managed (Gerenciado)** | Utiliza a implementação pronta do RAP. O framework fornece automaticamente o comportamento CRUD padrão para as CDSs e gerencia o buffer transacional. A funcionalidade fica disponível sem programação adicional, mas o desenvolvedor pode adicionar novas lógicas para complementar o comportamento padrão. | Ideal para cenários "Greenfield" (desenvolvimento de novas aplicações), onde não há lógica legada a ser reutilizada e se busca máxima aceleração no desenvolvimento. |
 | **Unmanaged (Não Gerenciado)** | O desenvolvedor precisa implementar todas as funcionalidades, incluindo a fase de interação com o buffer. Este tipo permite integrar APIs e lógicas de negócio já existentes, envolvendo-as no modelo RAP. | Frequentemente utilizado em cenários "Brownfield", onde é necessário reutilizar ou migrar um código legado (como BAPIs ou classes existentes) para uma aplicação Fiori moderna. |
 
-É importante notar que, além do comportamento CRUD padrão, as aplicações quase sempre possuem requisitos de negócio muito específicos que o framework não pode fornecer. Nesses casos, tanto no modelo **Managed** quanto no **Unmanaged**, é possível e esperado que o desenvolvedor implemente a respectiva lógica de negócios customizada.
+Embora o framework RAP forneça o comportamento CRUD padrão, a implementação da lógica de negócio específica da aplicação é sempre responsabilidade do desenvolvedor, tanto no modelo Managed quanto no Unmanaged.
 
 <br>
 
 ## 🏛️ Arquitetura Técnica do RAP
 
-Um aplicativo construído com o RAP possui uma arquitetura bem definida que conecta a base de dados aos consumidores finais, como interfaces Fiori ou APIs web.
+Um aplicativo criado com o **RAP** conecta o banco de dados **SAP HANA** aos consumidores finais (como telas SAP Fiori ou APIs externas) por meio de uma cadeia de camadas bem organizada.  
+
+<img width="709" height="523" alt="image" src="https://github.com/user-attachments/assets/6e920d2c-1813-4ee5-8861-3005e06262ad" />
+
+### 🔹 Como a requisição flui
+
+1. **SAP Gateway**  
+   - Porta de entrada.  
+   - Recebe chamadas OData/HTTPS e as traduz para o ambiente ABAP.  
+
+2. **Orchestration Framework (SADL)**  
+   - Decide para onde a requisição vai.  
+   - Se for **leitura (Query)** → encaminha para a camada de consultas.  
+   - Se for **escrita (Create, Update, Delete)** → envia para o **Business Object Framework**.  
+
+3. **Business Object Framework (BO)**  
+   - Onde vivem os **Business Objects** (entidades de negócio).  
+   - Executa regras de negócio, validações e lógica transacional antes de salvar ou alterar os dados.  
+
+4. **Query**  
+   - Responsável por buscar dados no SAP HANA de forma otimizada.  
+   - Usa CDS Views para entregar resultados já prontos.  
+
+5. **SAP HANA Database**  
+   - Persiste os dados.  
+   - Processa consultas e cálculos diretamente em memória.  
+
+---
+
+### 🔹 Fluxo 
+
+```plaintext
+[ SAP Fiori UI ]         [ Web API Consumer ]
+        │                        │
+        └─────── OData/HTTPS ────┘
+                   │
+             ┌──────────────┐
+             │  SAP Gateway │  ← Porta de entrada
+             └───────▲──────┘
+                     │
+             ┌──────────────┐
+             │ Orchestrator │  ← Decide o tipo (SADL)
+             └───┬─────┬────┘
+                 │     │
+       ┌─────────┘     └─────────┐
+       │                         │
+┌──────────────┐         ┌──────────────┐
+│ Business Obj │         │    Query     │
+│  Framework   │         │ (Leituras)   │
+│ (CRUD + BOs) │         └───────▲──────┘
+└───────▲──────┘                 │
+        │                        │
+        └──────────┬─────────────┘
+                   │
+           ┌──────────────┐
+           │   SAP HANA   │  ← Processa e armazena dados
+           │ (In-Memory)  │
+           └──────────────┘
+```
 
 A estrutura geral é composta por:
 - **Consumidores (Consumers)**: Podem ser uma **SAP Fiori User Interface** ou um **Web API Consumer**. Ambos se comunicam com o backend através do protocolo OData via HTTPS.
 - **ABAP Platform/Application Server**: Onde reside a aplicação RAP. Ele processa as requisições e interage com o banco de dados.
 - **SAP HANA Database**: A base de dados onde os dados são persistidos.
 
-Dentro do Application Server, o fluxo de uma requisição passa por várias camadas, conforme detalhado no diagrama de arquitetura.
-
-### Fluxo da Requisição: Gateway e Orquestrador
-
-1.  **SAP Gateway**: Atua como o portão de entrada. Ele implementa o protocolo OData, recebe as requisições externas e as encaminha para o Orquestrador para processamento.
-2.  **Orchestration Framework**: Avalia a requisição de forma genérica. A linguagem utilizada por ele é a **SADL (Service Adaptation and Description Language)**. O Orquestrador direciona a requisição da seguinte forma:
-    - **Requisições de Leitura**: São encaminhadas para a **Query** apropriada, que é responsável por buscar os dados no banco.
-    - **Requisições de Escrita (CRUD)**: São processadas via **Business Object Framework**, que lida com a lógica transacional.
-
 <br>
 
-## 🗣️ EML (Entity Manipulation Language)
+## EML (Entity Manipulation Language)
 
-A **Entity Manipulation Language (EML)** é uma nova sintaxe, parte integral da linguagem ABAP, utilizada no contexto do RAP para manipular os dados que vêm da camada de negócio (CDSs, etc.). É a tipagem padronizada para acessar os dados e as funcionalidades de um Objeto de Negócio RAP.
+A **Entity Manipulation Language (EML)** é uma extensão da linguagem ABAP criada para trabalhar com **Objetos de Negócio (Business Objects)** no RAP.  
 
-Com EML, é possível ler instâncias com a instrução `READ ENTITIES` e modificar instâncias com `MODIFY ENTITIES`.
+👉 Pense nela como a forma **padronizada e simplificada** de **ler, criar, atualizar e deletar entidades RAP**, sem precisar lidar diretamente com tabelas ou SQL.  
 
-A EML desempenha um papel crucial em diferentes casos de uso:
+Com EML, você pode:  
+- **Ler entidades** → `READ ENTITIES`  
+- **Modificar entidades** → `MODIFY ENTITIES`  
 
-- **Implementação do Behavior**: É possível utilizar instruções EML dentro da implementação do comportamento de um Objeto de Negócio. Neste cenário, a sua aplicação assume o papel de **Provedor (Provider)** da lógica.
-- **Execução de Operações (Consumo)**: É necessário programar com instruções EML quando um aplicativo ABAP precisa acessar a funcionalidade de um Objeto de Negócio RAP. Nesse caso, o aplicativo atua como **Consumidor (Consumer)**.
-- **Testes Unitários**: A EML é usada no contexto de testes unitários (ABAP Unit Test) para verificar a funcionalidade de um Objeto de Negócio de forma programática e automatizada.
+---
+
+### 📊 Papel da EML
+
+<img width="852" height="473" alt="image" src="https://github.com/user-attachments/assets/4162df6d-2fdb-45de-85b9-ea0f906ec04b" />
+
+---
+
+### 🔹 Onde a EML é usada
+
+1. **Implementação do Behavior (Provider)**  
+   - Dentro do **Behavior Implementation**, você usa EML para manipular entidades relacionadas.  
+   - Aqui, sua aplicação atua como **Provedor** da lógica.  
+
+2. **Execução de Operações (Consumer)**  
+   - Um programa ABAP que precisa acessar um Business Object RAP usa EML para consumir suas funcionalidades.  
+   - Aqui, sua aplicação é **Consumidor**.  
+
+3. **Testes Unitários (ABAP Unit Test)**  
+   - Em testes automáticos, a EML é usada para simular chamadas ao BO e validar o comportamento.  
+   - Isso garante que a lógica funcione como esperado, sem precisar de interface gráfica ou API externa.  
+
+---
+
+### 🔹 Fluxo visual simplificado (ASCII)
+
+```plaintext
+                 ┌────────────────────┐
+                 │ SAP Fiori / APIs   │
+                 └─────────┬──────────┘
+                           │ OData/HTTPS
+                           ▼
+                ┌─────────────────────────┐
+                │ABAP RESTful Application │
+                └─────────┬───────┬───────┘
+                          │       │
+         ┌────────────────┘       └────────────────┐
+         ▼                                        ▼
+┌────────────────────┐                  ┌────────────────────┐
+│   ABAP Source Code │  (Consumer)      │   ABAP Unit Test   │
+│   (READ/MODIFY)    │  → via EML →     │ (valida o BO via   │
+└────────────────────┘                  │   EML programática)│
+                                        └────────────────────┘
+
+                 ┌────────────────────┐
+                 │ Business Object BO │  (Provider)
+                 │   Implementação    │
+                 └─────────▲──────────┘
+                           │
+                      via EML
+                           │
+                  ┌────────────────────┐
+                  │ SAP HANA Database  │
+                  │   (persistência)   │
+                  └────────────────────┘
+```
 
 ## 🧩 Principais Artefatos de Desenvolvimento RAP
 
 O ABAP RESTful é um modelo de programação que disponibiliza um conjunto de objetos de desenvolvimento, linguagens e APIs específicas. A interação entre esses artefatos permite implementar funcionalidades de negócio de forma estruturada. Os dois componentes iniciais e mais importantes de um Objeto de Negócio no RAP são o modelo de dados (definido com CDS) e o seu comportamento (Behavior).
 
-### Modelo de Dados com Core Data Services (CDS)
+<img width="927" height="824" alt="rap" src="https://github.com/user-attachments/assets/bd4a933d-fde7-4980-b841-f7bd532932c1" />
 
-Cada aplicativo RAP é baseado em um modelo de dados que representa suas entidades de negócio, descreve seus atributos e mapeia os relacionamentos (associações) com outras entidades.
+Além dos artefatos listados, o Behavior Definition é acompanhado de uma Behavior Implementation (classe ABAP), onde são codificadas as regras de negócio de forma prática, como validações e ações customizadas.
 
--   **Entidade de Negócio**: Representa um conceito de negócio. Por exemplo, um mestre de materiais ou um pedido de vendas são objetos de negócio típicos.
--   **Modelo Lógico com CDS**: Para definir o modelo lógico de dados de um aplicativo, utiliza-se Core Data Services (CDS). Para cada entidade de negócio, uma entidade CDS correspondente é criada no sistema.
--   **Fonte de Dados**: Normalmente, as entidades CDS são criadas com base em tabelas transparentes existentes, mas também podem ser definidas de forma independente, sem uma fonte de dados preexistente.
+O fluxo de desenvolvimento segue normalmente de baixo para cima: começa-se pela tabela base, depois define-se a CDS View Entity (modelo de dados), em seguida o Behavior Definition + Implementation (regras de negócio) e finalmente a Projection + Metadata Extension, que expõem os dados e funcionalidades para aplicações externas como Fiori/UI5 ou serviços OData.
 
-#### A Entidade Raiz (CDS Root Entity)
+1. **Database Table (Active + Draft)**  
+   Base física dos dados.  
 
-O conceito de um objeto de negócios com suas entidades CDS dependentes é de particular importância no RAP. Uma transação ou objeto de negócio completo (como um Pedido de Vendas com seus itens, parceiros e categorias) é mapeado em sua totalidade para uma entidade CDS especial chamada **entidade raiz (ROOT)**. Esta entidade raiz serve como o ponto de entrada principal para o objeto de negócio e governa todas as suas entidades filhas (dependentes), formando uma estrutura hierárquica.
+2. **CDS View Entity**  
+   Modelo de dados semântico.  
 
-### O Modelo de Comportamento (Behavior)
+3. **Behavior Definition (BDL)**  
+   Define regras e operações permitidas.  
 
-Enquanto o modelo de dados CDS define a estrutura, o **Behavior** de um objeto de negócios define sua lógica transacional. O Behavior agrupa operações de gravação (como criação e modificação), propriedades transacionais (como bloqueios e autorizações) e lógica de negócios interna (como verificações e cálculos).
+4. **Behavior Implementation (ABAP)**  
+   Implementa as regras de negócio.  
 
-O Business Object é o responsável por controlar o processamento das operações durante as fases de `Interaction` e `Save Sequence`, e os métodos para isso são chamados pela camada do Behavior.
+5. **CDS Projection View**  
+   Decide o que será exposto externamente.  
 
-#### Behavior Definition e a Linguagem BDL
+6. **CDS Metadata Extension**  
+   Ajusta como a UI enxerga os dados.  
 
-Para definir o comportamento de um objeto de negócios, cria-se um **Behavior Definition**, que é um novo tipo de objeto de desenvolvimento no RAP.
--   Ele é criado com referência à entidade **root** da CDS e, consequentemente, seu escopo se aplica a todas as entidades subordinadas a ela.
--   O comportamento é declarado usando a **Behavior Definition Language (BDL)**. Por exemplo, pode-se usar as palavras-chave `create`, `update` ou `delete` para especificar que a entidade suporta as operações padrão correspondentes.
--   É também na Behavior Definition que se especifica o tipo de implementação (**Managed** ou **Unmanaged**) para a funcionalidade do objeto de negócios.
+7. **Fiori/UI5 ou OData Service**  
+   Aplicações e usuários finais consumindo.  
 
-### Detalhando a Implementação do Behavior
+---
 
-Dentro da classe ABAP do **Behavior Pool**, a implementação é dividida em diferentes categorias de lógica, cada uma com um propósito específico.
-
-#### Operações Padrão (Standard Operations)
-
-Incluem as operações básicas de **criação, leitura, atualização e exclusão** de dados.
--   Para que estas operações funcionem, elas devem ser implementadas adequadamente no contexto do modelo transacional, que inclui a fase de interação, o buffer de transação e a sequência de salvamento.
--   Por exemplo, a operação `create` requer que a nova instância seja primeiro adicionada ao buffer de transação.
--   A implementação dessas operações pode ser fornecida pelo framework (cenário **Managed**) ou executada pelo próprio desenvolvedor (cenário **Unmanaged**).
-
-#### Operações Específicas (Specific Operations)
-
-Existem para a implementação de **ações ou funções** customizadas e relacionadas ao aplicativo (por exemplo, um botão "Aprovar Pedido").
--   Estas operações **sempre exigem uma implementação de Behavior própria**.
-
-#### Lógica de Negócio Interna (Internal Business Logic)
-
-Refere-se à implementação de **validações ou determinações** que são visíveis apenas dentro do objeto de negócios.
--   Exemplos incluem calcular um campo com base em outro (determinação) ou verificar se um valor é permitido (validação).
--   Assim como as operações específicas, esta lógica **sempre precisa de uma implementação de comportamento própria**.
-
-#### Comportamento Transacional (Transactional Behavior)
-
-Geralmente, é necessária uma implementação própria de Behavior para aspectos transacionais como **verificações de autorização, numeração (Numbering) e bloqueios (Locks)**.
--   No entanto, para a atribuição de números, é possível utilizar uma implementação pronta do framework, como a numeração gerenciada com **GUIDs (identificadores exclusivos globais)**.
--   GUIDs podem ser usados para atribuir valores-chave às novas instâncias.
+| Linguagem (DL) | Descrição |
+| :--- | :--- |
+| **DDL** (Data Definition Language) | Utilizada nas CDS para definir a semântica dos modelos da aplicação e expor os dados no serviço OData. | 
+| **DDLA** (Data Definition Language Annotations) | Define as anotações que servem para adicionar características aos objetos definidos na DDL. | 
+| **DCL** (Data Control Language) | Linguagem que define os dados de controle de acesso. | 
+| **BDL** (Behavior Definition Language) | Utilizada nos *Behaviors* para controlar as ações da aplicação. |
+| **SDL** (Service Definition Language) | Utilizada nos serviços que definem a exposição dos dados via OData. |
 
 <br>
 
@@ -314,6 +407,21 @@ Ao construir aplicativos com o ABAP RESTful Application Programming Model, o uso
 -   Todas as ferramentas necessárias para desenvolvimento, teste e análise de aplicações RAP estão disponíveis neste ambiente.
 
 Uma única instalação do ADT pode se conectar a múltiplos sistemas ABAP de diferentes versões, sejam eles sistemas locais (On-Premise), sistemas baseados na SAP Business Technology Platform (SAP BTP) ou sistemas SAP S/4HANA Cloud. O escopo funcional disponível no ADT sempre dependerá da versão do sistema back-end ao qual ele está conectado.
+
+### Boas práticas na nomenclatura dos objetos 
+
+| Object Type | Naming |
+| :--- | :--- |
+| Database Table (Active data) | `Z<Name>` |
+| Database Table (Draft data) | `Z<Name>_D` |
+| CDS View Entity (Model) | `ZR_<Name>` |
+| CDS View Entity (Projection) | `ZC_<Name>` |
+| CDS Metadata Extension | `ZC_<Name>` |
+| CDS Behavior Definition (Model) | `ZR_<Name>` |
+| CDS Behavior Definition (Projection) | `ZC_<Name>` |
+| Global Class (Behavior Implementation) | `ZBP_R<Name>` |
+| Service Definition | `ZUI_<Name>_O4` |
+| Service Binding | `ZUI_<Name>_O4` |
 
 <br>
 
