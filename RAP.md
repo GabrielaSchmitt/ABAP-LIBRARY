@@ -344,33 +344,41 @@ O fluxo de desenvolvimento segue normalmente de baixo para cima: começa-se pela
 
 <br>
 
-## 🎭 A Camada de Projeção (Projection Layer)
+## 🎭 Camada de Projeção (Projection Layer)
 
-Após a definição do Objeto de Negócio principal (com seu modelo de dados e comportamento), a **Camada de Projeção** é utilizada para adaptar este objeto para um caso de uso específico. O objetivo geral é **limitar os atributos e operações** que serão expostos ao consumidor final.
+Depois de criar o **Objeto de Negócio principal**, usamos a **Camada de Projeção** para preparar uma versão simplificada e adaptada dele, voltada a um caso de uso específico (como uma tela ou API).  
 
-A camada de projeção é composta por duas partes:
+👉 Pense nela como um **filtro**: mostra só os dados e operações necessários para a aplicação final.  
 
--   **Projeção de CDS (CDS Projection View)**: Uma visão de projeção CDS é usada para declarar quais atributos e associações do modelo de dados principal são relevantes para o caso de uso. Nela, é possível enriquecer o modelo com anotações específicas para a UI, como a definição de uma interface de pesquisa ou a configuração de um campo para ajuda de entrada.
--   **Projeção de Comportamento (Behavior Projection)**: É um tipo especial de implementação que restringe as operações e comportamentos declarados na Behavior Definition principal. Além de restringir, você também pode adicionar operações adicionais na projeção, implementando-as em ABAP, sem ter que alterar a funcionalidade do objeto de negócios principal. Isso exige uma implementação de comportamento adicional na própria camada de projeção.
+A camada tem **duas partes**:  
 
-<br>
+1. **CDS Projection View (dados)**  
+   - Seleciona apenas os campos e associações relevantes.  
+   - Adiciona anotações `@UI` para definir a aparência na interface (ex: campos de pesquisa, títulos, visibilidade).  
+   - Mantém o modelo principal **limpo** e genérico.  
 
-## 🚀 A Camada de Serviço de Negócio (Business Service Layer)
+2. **Behavior Projection (lógica)**  
+   - Define quais operações do objeto principal estarão disponíveis (ex: permitir só leitura, bloquear create/delete).  
+   - Pode adicionar **ações específicas** para esse cenário, sem alterar o objeto principal.  
 
-Esta é a camada final, usada para expor os objetos de negócios RAP (seus dados e comportamentos, já adaptados pela camada de projeção) como uma API remota para ser consumida externamente. Ela é composta por dois artefatos:
+---
 
-### Definição de Serviço (Service Definition)
+## 🚀 Camada de Serviço de Negócio (Business Service Layer)
 
-O Service Definition contém as entidades CDS que serão expostas a partir do modelo de dados da aplicação.
--   Ele determina exatamente quais dados e qual comportamento são expostos como um serviço.
--   Normalmente, a exposição é feita com base nas visões de projeção (e projeções de comportamento), mas em casos mais simples, pode ser feita diretamente com base nas entidades CDS do objeto de negócios principal.
+Depois que a Projeção prepara os dados e comportamentos, a **Camada de Serviço** expõe tudo isso como uma **API** ou **serviço pronto para uso**.  
 
-### Vinculação de Serviço (Service Binding)
+Ela tem **dois elementos**:  
 
-Baseado em um Service Definition, o Service Binding permite definir o protocolo técnico específico através do qual o serviço será exposto.
--   Pode ser, por exemplo, **OData versão 2 (OData V2) ou OData versão 4 (OData V4)**.
--   Para cada protocolo, é feita uma distinção entre uma variante para **consumidores de UI** e uma para **consumidores de API web**.
--   O Service Binding também oferece suporte ao controle de versão da interface e é o local onde autorizações padrão podem ser atribuídas.
+1. **Service Definition (o contrato)**  
+   - Lista quais entidades e operações da projeção farão parte do serviço.  
+   - Responde: **“O que meu serviço oferece?”**  
+
+2. **Service Binding (a publicação)**  
+   - Define **como** o serviço será acessado (ex: OData V2 ou OData V4).  
+   - Especifica o **tipo de consumidor** (UI Fiori ou API externa).  
+   - Ativa o serviço e gera sua **URL** para uso.  
+
+---
 
 ## 🌟 Requisitos Não Funcionais e Qualidades da Arquitetura RAP
 
@@ -487,16 +495,3 @@ O recurso de **testabilidade** de um software determina a facilidade com que sua
 -   O RAP introduz os conceitos da **fase de interação** e do **buffer de transação**, e o modelo torna difícil "programar além" desses conceitos, garantindo um fluxo previsível e testável.
 -   Os testes em RAP são habilitados pela implementação de casos de teste usando o **Framework ABAP Unit**.
 -   O ABAP Unit é um framework de testes que permite desenvolver e executar testes de unidade para as aplicações, garantindo a qualidade e a segurança nas alterações.
-
-## 🌎 Disponibilidade do ABAP RAP
-
-Nesta seção, veremos em quais produtos SAP o ABAP RESTful Application Programming Model está disponível e como ele se posiciona em cada caso.
-
-O modelo RAP cria um espaço explícito para a lógica de negócios através do conceito de Objeto de Negócio, com sua definição de comportamento e implementação. Isso torna difícil incorporar codificação técnica que afete o processo de desenvolvimento, reforçando o princípio de que a lógica de negócio deve ser separada da lógica técnica. Por exemplo, o cálculo do melhor preço de compra (lógica de negócio) deve ser independente de como esse preço será exibido na UI ou transmitido para um sistema de terceiros (lógica técnica). É essa separação que permite que o RAP seja implantado em diferentes plataformas tecnológicas.
-
-### Em Ambientes On-Premise (SAP S/4HANA)
-
--   **Lançamento**: O modelo de programação RAP on-premise foi disponibilizado pela primeira vez com a plataforma ABAP para **SAP S/4HANA 1909 FPS00** (equivalente ao SAP NetWeaver 7.54).
--   **Evolução**: O RAP substituiu o "ABAP Programming Model for SAP Fiori" (introduzido no SAP NetWeaver 7.50), que, no entanto, continua a ser totalmente apoiado.
--   **Ciclo de Lançamento**: A plataforma ABAP não é mais fornecida individualmente, mas sim como parte de uma instalação do SAP S/4HANA. Consequentemente, a plataforma ABAP está vinculada ao **ciclo anual de lançamento** do SAP S/4HANA on-premise, o que significa que novos recursos do RAP ficam disponíveis apenas uma vez por ano.
--   **Desenvolvimento**: Embora o princípio do "Clean Core" se aplique, no ambiente on-premise os desenvolvedores tecnicamente têm a opção de usar objetos de desenvolvimento SAP não lançados e as verificações de API não são impostas sintaticamente. Modificações no sistema também
