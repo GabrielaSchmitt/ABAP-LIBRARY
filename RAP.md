@@ -51,38 +51,28 @@ O desenvolvimento de uma aplicação RAP segue um fluxo bem definido, partindo d
 
 ## OData: O Protocolo de Comunicação
 
-O **Open Data Protocol (OData)** é o padrão utilizado pelo RAP para expor os serviços. Ele é uma especificação de API REST gerenciada pela OASIS que define como os dados são trocados entre o cliente e o back-end.
+O **OData (Open Data Protocol)** é o padrão usado pelo RAP para expor serviços como **APIs REST**. Ele define como os dados são trocados entre cliente e back-end.  
 
-Uma URL OData é composta por três partes principais:
+Uma URL OData é formada por:  
+- **Service Root URL** → endereço base do serviço.  
+- **Resource Path** → entidade específica acessada.  
+- **Query Options** → filtros e ordenações (ex: `$top`, `$orderby`).  
 
-  - **Service Root URL**: O endereço base do serviço.
-  - **Resource Path**: O caminho para a entidade específica que está sendo acessada.
-  - **Query Options**: Parâmetros para filtrar, ordenar e paginar os dados (ex: `$top`, `$orderby`).
+### 📌 Anotações e Vocabulários
+As **Annotations** e **Vocabularies** adicionam semântica ao modelo de dados, ajudando a UI (ex: definir que o título de "Pessoa" seja `LastName + FirstName`).  
 
-### Anotações e Vocabulários
+### 🔹 Operações CRUD via HTTP
+No RAP, os métodos seguem o padrão REST:  
 
-Embora o OData defina a estrutura de acesso, os **OData Vocabularies** e as **Annotations** enriquecem o modelo de dados com semântica adicional, que é interpretada pela interface do usuário (UI). Por exemplo, uma anotação pode definir que o título de uma tela de "Pessoa" deve ser composto pelos campos `LastName` e `FirstName`.
+| Método | CRUD | Sucesso |
+| :--- | :--- | :--- |
+| GET | Read | `200`, `404` |
+| POST | Create | `201`, `204` |
+| PUT | Update (total) | `200`, `204` |
+| PATCH | Update (parcial) | `200`, `204` |
+| DELETE | Delete | `200`, `204` |
 
-### Métodos HTTP e Operações CRUD
-
-O RAP mapeia as operações CRUD (Create, Read, Update, Delete) para os métodos HTTP padrão do protocolo REST.
-
-| Método | Operação CRUD | Descrição | Código de Sucesso Comum |
-| :--- | :--- | :--- | :--- |
-| **GET** | Read | Representa a leitura dos dados. | `200` (OK), `404` (Not Found) |
-| **POST** | Create | Representa a criação de novos dados. | `201` (Created), `204` (No Content) |
-| **PUT** | Update | Modifica uma entidade inteira. | `200` (OK), `204` (No Content) |
-| **PATCH** | Update | Modifica apenas atributos específicos de uma entidade. | `200` (OK), `204` (No Content) |
-| **DELETE**| Delete | Representa a deleção dos dados. | `200` (OK), `204` (No Content) |
-
-### OData V4: Mais Eficiência
-
-O OData V4, padronizado pela OASIS e ISO/IEC, é a versão recomendada pela SAP e traz diversas vantagens sobre o V2:
-
-  - **Melhor compactação de metadados**, economizando volume de dados.
-  - **Consultas mais sofisticadas** e expansões de vários níveis, reduzindo o número de chamadas.
-  - **Recursos analíticos avançados**.
-  - Acesso a múltiplos serviços simultaneamente pelo client.
+O OData V4, padronizado pela OASIS e ISO/IEC, é a versão recomendada pela SAP e traz diversas vantagens sobre o V2 como `Melhor compactação de metadados` economizando volume de dados, `Consultas mais sofisticadas` reduzindo o número de chamadas, `Recursos analíticos avançados` garantindo acesso a múltiplos serviços simultaneamente pelo client.
 
 <br>
 
