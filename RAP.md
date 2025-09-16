@@ -61,18 +61,19 @@ Uma URL OData é formada por:
 ### 📌 Anotações e Vocabulários
 As **Annotations** e **Vocabularies** adicionam semântica ao modelo de dados, ajudando a UI (ex: definir que o título de "Pessoa" seja `LastName + FirstName`).  
 
-### 🔹 Operações CRUD via HTTP
-No RAP, os métodos seguem o padrão REST:  
+### 🔹 CRUD via HTTP
 
-| Método | CRUD | Sucesso |
+No RAP, as operações de manipulação de dados seguem o padrão REST, mapeando diretamente os métodos HTTP para as ações CRUD:  
+
+| Método | CRUD | Descrição |
 | :--- | :--- | :--- |
-| GET | Read | `200`, `404` |
-| POST | Create | `201`, `204` |
-| PUT | Update (total) | `200`, `204` |
-| PATCH | Update (parcial) | `200`, `204` |
-| DELETE | Delete | `200`, `204` |
+| GET | Read | Leitura de dados |
+| POST | Create | Criação de dados |
+| PUT | Update (total) | Atualização completa de uma entidade |
+| PATCH | Update (parcial) | Atualização parcial de atributos |
+| DELETE | Delete | Exclusão de dados |
 
-O OData V4, padronizado pela OASIS e ISO/IEC, é a versão recomendada pela SAP e traz diversas vantagens sobre o V2 como `Melhor compactação de metadados` economizando volume de dados, `Consultas mais sofisticadas` reduzindo o número de chamadas, `Recursos analíticos avançados` garantindo acesso a múltiplos serviços simultaneamente pelo client.
+O **OData V4**, padronizado pela OASIS e ISO/IEC, é a versão recomendada pela SAP e traz diversas vantagens sobre o V2 como `Melhor compactação de metadados` economizando volume de dados, `Consultas mais sofisticadas` reduzindo o número de chamadas, `Recursos analíticos avançados` garantindo acesso a múltiplos serviços simultaneamente pelo client.
 
 <br>
 
