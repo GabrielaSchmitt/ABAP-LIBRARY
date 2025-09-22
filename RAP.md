@@ -75,6 +75,18 @@ No RAP, as operações de manipulação de dados seguem o padrão REST, mapeando
 
 O **OData V4**, padronizado pela OASIS e ISO/IEC, é a versão recomendada pela SAP e traz diversas vantagens sobre o V2 como `Melhor compactação de metadados` economizando volume de dados, `Consultas mais sofisticadas` reduzindo o número de chamadas, `Recursos analíticos avançados` garantindo acesso a múltiplos serviços simultaneamente pelo client.
 
+# OData V2 vs OData V4
+
+| Feature      | OData V2                        | OData V4                                |
+|--------------|---------------------------------|------------------------------------------|
+| Adoption     | Gateway, Legacy apps            | RAP, Modern apps                         |
+| Metadata     | XML only                        | XML + JSON                               |
+| Operations   | CRUD + Function Imports         | CRUD + Bound/Unbound Actions             |
+| Annotations  | Limited, SAP-specific           | Rich, standard-based                     |
+| Payload      | XML/JSON (heavy)                | JSON-first (lightweight, faster)         |
+| Semantics    | Associations, Navigations       | Compositions, stronger semantics         |
+| Batch        | Basic                           | More efficient                           |
+
 <br>
 
 ## SAP Fiori Elements: Acelere o Desenvolvimento de UI
