@@ -48,3 +48,9 @@ DATA(line) = VALUE #( values[ name = “A” ] OPTIONAL )
 
 * para verificar se o registro existe, ao invés de READ TABLE ou LOOP AT
 IF line_exists( my_table[ key = 'A' ] ).
+
+* select verifies boolean
+SELECT SINGLE @abap_true
+       FROM scarr
+       WHERE carrid = @carrier
+       INTO @DATA(lv_exists).
