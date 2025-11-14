@@ -40,8 +40,8 @@ DATA(lv_status) = REDUCE #( INIT lv_cont TYPE i FOR <fs_sfir> IN lt_sfir_root WH
 * Somatória ( com decimais é necessário tipar a variavél x usando o CONV() )
 DATA(lv_total_kwert) = REDUCE BAPI_RMWWR(
                                       INIT x = conv kwert( 0 )
-                                      FOR ls_prcde IN lt_prcde
-                                      NEXT x = x + ls_prcde-kwert ).
+                                      FOR ls IN lt_prcde
+                                      NEXT x = x + ls-kwert ).
 
 * matnr40 to matnr18
 DATA(lv_asnum_sel) = |{ conv matnr18( |{ zdart001-matnr_svc ALPHA = OUT }|  ) ALPHA = IN }|.
