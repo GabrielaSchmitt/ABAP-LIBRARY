@@ -4,6 +4,12 @@ DATA(ls_partner) = VALUE ts_partner( partner = '3' name = 'Partner Three' ).
 * declarar constante
 FINAL(ls_partner) = VALUE ts_partner( partner = '3' name = 'Partner Three' ).
 
+* criar range inline 
+lr_kschl =   VALUE #( sign = 'I'  option = 'EQ'
+                        ( low = 'CBS3' )
+                        ( low = 'IB3S' )
+                        ( low = 'IB3M' ) ).
+
 * ternario 
 <lf_contract>-st_contrato = COND #( WHEN lt_tab-var = 01 THEN 'FECHADO' ELSE 'ABERTO' ).
 
