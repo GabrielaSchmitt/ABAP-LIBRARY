@@ -29,6 +29,7 @@ After creating you simply click on save and its done. ![image](https://user-imag
 ## Heres two possibilities to acess tvarv's values on your code:
 
 If the class is avaiable on your ambient, you can use the abap 7.5 sintax and create the variable of parameter and request the information in one line!
+If the class zcl_tvarv doesnt exist you can create it, full code by the end of the doc. 
 
     data(v_name) = zcl_tvarv=>get_single_value( 'Z_YOUR_TVARV' ).
 
@@ -60,6 +61,14 @@ AND type = 'S'. "Select Option
 READ TABLE lr_dir_range INTO DATA(w_dir) INDEX 1.
 
 vpath_tvarv = w_dir-low.
+```
+
+Or
+
+```abap
+
+zcl_tvarv=>get_values( EXPORTING input = 'ZMM_COND_FRETE' IMPORTING output = DATA(lt_fretecode) ).
+
 ```
 
 ## Here's a Complete Example Using 7.5 Syntax
@@ -103,4 +112,10 @@ IF sy-subrc EQ 0.
                                                             ELSE row-maktx ) ) ) .
   t_makt = t_makt_aux.
 ENDIF.
+```
+
+
+Complete code of ZCL_TVARV 
+```abap
+
 ```
