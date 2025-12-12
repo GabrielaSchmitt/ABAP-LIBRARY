@@ -28,6 +28,9 @@ data(lr_item) = 'item2'.
 data(lr_lote) = 'lo t 3 e '.
 data(lr_novo) = |{ lr_item } Lote: { replace( val = |{ lr_lote ALPHA = OUT }|  sub = ` ` with = '' occ = 0 ) }|.
 
+* removendo tudo que não for numérico
+ls_nfscapa-cnpj  = replace( val = gs_verifynotafiscal-br_nfissuercnpjorcpf regex = '\D' with = '' occ = 0 ).
+
 * condense
 data(lr_novo) = |{ lr_item } Lote: { condense( lr_lote ) }|.
 
