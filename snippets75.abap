@@ -21,6 +21,9 @@ DATA(message) = |Received HTTP code { status_code } with message { text }|.
  lw_var = condense( |{ iw_var-field ALPHA = OUT }| ).
  lw_var = condense( |{ iw_var-field ALPHA = IN }| ).
 
+* remover espaços a direita
+lv_out = shift_right( val = lv_out sub = ' ' ).
+
 @data(lw_ekko) = COND #( WHEN LINE_EXISTS( lt_ekko [ EBELN = '100000001' ] THEN lt_ekko [ EBELN = '100000001' ] ).
 
 * replace - esta removendo espaços da string lr_lote e depois concatenando 
