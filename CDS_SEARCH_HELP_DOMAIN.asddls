@@ -15,6 +15,8 @@
                 modelingPattern: #VALUE_HELP_PROVIDER
                  }
 @Search.searchable: true
+// if you want a dropdown of one element only you can use line 19 instead of line 17
+// @ObjectModel.resultSet.sizeCategory: #XS
 @Consumption.ranked: true
 define view entity ZMM_CIB_VH_STATUS as select distinct from dd07t
 {
